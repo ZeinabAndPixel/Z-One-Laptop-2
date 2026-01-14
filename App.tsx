@@ -7,8 +7,9 @@ import FilterSidebar from './components/FilterSidebar';
 import CartDrawer from './components/CartDrawer';
 import Checkout from './components/Checkout';
 import PCBuilder from './components/PCBuilder';
-import Toast from './components/Toast';
 
+import Toast from './components/Toast';
+import ChatAssistant from './components/ChatAssistant'; // <--- Añade esta línea
 import { SecurityModal, SecurityBanner } from './components/SecurityFeatures';
 import { getProducts, saveOrder } from './lib/db'; // Importamos la función de DB
 import { Product, CartItem } from './types';
@@ -402,9 +403,23 @@ const formattedData: Product[] = data.map((item: any) => ({
         <div className="mt-16 pt-8 border-t border-slate-900 text-center text-slate-600 text-sm">
           © {new Date().getFullYear()} Z-One Laptop Store. Todos los derechos reservados.
         </div>
-      </footer>
-    </div>
+      
+    
+{/* 1. Sección de Notificaciones (Toast) */}
+      {toastMessage && (
+        <Toast 
+          message={toastMessage} 
+          onClose={() => setToastMessage(null)} 
+        />
+      )}
+
+      {/* 2. AQUÍ AGREGAMOS EL ASISTENTE INTELIGENTE */}
+      <ChatAssistant /> 
+
+      </footer> {/* Asegúrate de cerrar el main si lo abriste arriba */}
+    </div> // Este cierra el div principal de la App
   );
-};
+}; // Este cierra la función App
+
 
 export default App;
