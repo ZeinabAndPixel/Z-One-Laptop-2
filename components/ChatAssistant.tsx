@@ -17,11 +17,17 @@ console.log("¿Qué llave ve el código?:", apiKey ? "Una llave que empieza por 
     setMessages([...messages, userMsg]);
     console.log("¿Mi llave existe?", !!import.meta.env.VITE_GOOGLE_AI_KEY);
     setInput('');
-
+// Dentro de handleSend, antes del try:
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_AI_KEY);
+// Prueba forzando la versión del modelo aquí
+const model = genAI.getGenerativeModel({ 
+  model: "gemini-1.5-flash-latest" // Usar la versión 'latest' suele ser más seguro
+});
     try {
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_AI_KEY);
       const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
+       
+        model: "gemini-1.5-flash-latest",
         systemInstruction: "Eres el asistente experto de Z-ONE LAPTOP en El Tigre, Venezuela. Ayudas a clientes a elegir laptops potentes, componentes de pc, perifericos,etc. Sé amable y profesional."
       });
 
