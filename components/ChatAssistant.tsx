@@ -21,7 +21,7 @@ console.log("¿Qué llave ve el código?:", apiKey ? "Una llave que empieza por 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_AI_KEY);
 // Prueba forzando la versión del modelo aquí
 const model = genAI.getGenerativeModel({ 
-  model: "gemini-1.5-flash-latest" // Usar la versión 'latest' suele ser más seguro
+  model: "gemini-1.5-flash-8b" // Usar la versión 'latest' suele ser más seguro
 });
     try {
       // Prueba con esta configuración que es la más universal y estable
