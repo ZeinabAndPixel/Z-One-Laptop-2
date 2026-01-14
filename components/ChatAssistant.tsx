@@ -18,29 +18,25 @@ console.log("¿Qué llave ve el código?:", apiKey ? "Una llave que empieza por 
     console.log("¿Mi llave existe?", !!import.meta.env.VITE_GOOGLE_AI_KEY);
     setInput('');
 
-    try {
-      // Prueba con esta configuración que es la más universal y estable
-      // Sustituye tu configuración actual por esta:
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_AI_KEY);
-
-// Forzamos el uso de la versión 1 estable y el modelo más liviano
-const model = genAI.getGenerativeModel({ 
-  model: "gemini-1.5-flash",
-  systemInstruction: "Eres el asistente experto de Z-ONE LAPTOP . Ayudas a clientes a elegir laptops potentes, componentes de pc, perifericos,etc. Sé amable y profesional."
-  },
-   { apiVersion: 'v1' }); // <-- Esto cambia la ruta que da el error 404
-
- 
+    // Reemplaza tu bloque de 'try' por este más sencillo:
+try {
+  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_AI_KEY);
   
-     
-        
+  // Usamos el modelo más estándar y forzamos la versión estable 'v1'
+  const model = genAI.getGenerativeModel({ 
+    model: "gemini-1.5-flash" 
+  }, { apiVersion: 'v1' }); 
 
-      const result = await model.generateContent(input);
-      const response = await result.response;
-      setMessages(prev => [...prev, { role: 'bot', text: response.text() }]);
-    } catch (err) {
-      setMessages(prev => [...prev, { role: 'bot', text: "Lo siento, hubo un error de conexión." }]);
-    }
+  // Quitamos la systemInstruction por ahora para probar si eso causa el error 400
+  const result = await model.generateContent(input);
+  const response = await result.response;
+  setMessages(prev => [...prev, { role: 'bot', text: response.text() }]);
+
+} catch (err) {
+  // Si falla, imprimimos el error real en la consola para saber el porqué
+  console.error("Error detallado de Google:", err);
+  setMessages(prev => [...prev, { role: 'bot', text: "Lo siento, hubo un error de conexión." }]);
+}
   };
 
   return (
