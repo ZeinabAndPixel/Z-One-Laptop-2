@@ -24,12 +24,14 @@ const model = genAI.getGenerativeModel({
   model: "gemini-1.5-flash-latest" // Usar la versión 'latest' suele ser más seguro
 });
     try {
-      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_AI_KEY);
-      const model = genAI.getGenerativeModel({ 
-       
-        model: "gemini-1.5-flash-latest",
-        systemInstruction: "Eres el asistente experto de Z-ONE LAPTOP en El Tigre, Venezuela. Ayudas a clientes a elegir laptops potentes, componentes de pc, perifericos,etc. Sé amable y profesional."
+      // Prueba con esta configuración que es la más universal y estable
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_AI_KEY);
+const model = genAI.getGenerativeModel({ 
+  model: "gemini-1.5-flash-8b", // Esta versión '8b' es la más compatible con cuentas nuevas
+  systemInstruction: "Eres el asistente experto de Z-ONE LAPTOP . Ayudas a clientes a elegir laptops potentes, componentes de pc, perifericos,etc. Sé amable y profesional."
       });
+     
+        
 
       const result = await model.generateContent(input);
       const response = await result.response;
