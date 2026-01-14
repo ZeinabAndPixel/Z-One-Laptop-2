@@ -35,7 +35,7 @@ const model = genAI.getGenerativeModel({
       const response = await result.response;
       setMessages(prev => [...prev, { role: 'bot', text: response.text() }]);
     } catch (err) {
-      setMessages(prev => [...prev, { role: 'bot', text: "Lo siento, Zei, hubo un error de conexión." }]);
+      setMessages(prev => [...prev, { role: 'bot', text: "Lo siento, hubo un error de conexión." }]);
     }
   };
 
