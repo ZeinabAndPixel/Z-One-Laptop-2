@@ -17,19 +17,21 @@ console.log("¿Qué llave ve el código?:", apiKey ? "Una llave que empieza por 
     setMessages([...messages, userMsg]);
     console.log("¿Mi llave existe?", !!import.meta.env.VITE_GOOGLE_AI_KEY);
     setInput('');
-// Dentro de handleSend, antes del try:
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_AI_KEY);
-// Prueba forzando la versión del modelo aquí
-const model = genAI.getGenerativeModel({ 
-  model: "gemini-1.5-flash-8b" // Usar la versión 'latest' suele ser más seguro
-});
+
     try {
       // Prueba con esta configuración que es la más universal y estable
+      // Sustituye tu configuración actual por esta:
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_AI_KEY);
+
+// Forzamos el uso de la versión 1 estable y el modelo más liviano
 const model = genAI.getGenerativeModel({ 
-  model: "gemini-1.5-flash-8b", // Esta versión '8b' es la más compatible con cuentas nuevas
+  model: "gemini-1.5-flash",
   systemInstruction: "Eres el asistente experto de Z-ONE LAPTOP . Ayudas a clientes a elegir laptops potentes, componentes de pc, perifericos,etc. Sé amable y profesional."
-      });
+  },
+   { apiVersion: 'v1' }); // <-- Esto cambia la ruta que da el error 404
+
+ 
+  
      
         
 
