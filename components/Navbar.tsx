@@ -7,7 +7,11 @@ interface NavbarProps {
   onSelectCategory: (category: string) => void;
   searchTerm: string;
   onSearchSubmit: (term: string) => void;
+  user: any; // <--- Nuevo
+  onOpenLogin: () => void; // <--- Nuevo
+  onLogout: () => void; // <--- Nuevo
 }
+
 
 const Navbar: React.FC<NavbarProps> = ({ 
   cartCount, 
@@ -104,7 +108,38 @@ const Navbar: React.FC<NavbarProps> = ({
               )}
             </form>
           </div>
+{/* --- PEGA AQUÍ EL CÓDIGO NUEVO --- */}
+          {user ? (
+            <div className="hidden md:flex items-center gap-3 mr-2">
+              <div className="text-right">
+                <p className="text-sm font-bold text-white leading-none">{user.nombre_completo}</p>
+                <button onClick={onLogout} className="text-[10px] text-red-400 hover:underline">Cerrar Sesión</button>
+              </div>
+              <div className="w-8 h-8 bg-cyan-500/20 rounded-full flex items-center justify-center text-cyan-400 font-bold border border-cyan-500">
+                {user.nombre_completo.charAt(0).toUpperCase()}
+              </div>
+            </div>
+          ) : (
+            <button onClick={onOpenLogin} className="hidden md:flex items-center gap-2 text-slate-300 hover:text-white transition-colors text-sm font-medium">
+              <User className="w-5 h-5" /> Login
+            </button>
+          )}
+          {/* ---------------------------------- */}
 
+          {/* Botón del Carrito (YA EXISTE, DÉJALO IGUAL) */}
+          <div className="relative group cursor-pointer shrink-0" onClick={onOpenCart}>
+            <ShoppingBag className="w-6 h-6 text-slate-300 group-hover:text-cyan-400 transition-colors" />
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-cyan-500 text-slate-900 text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center animate-bounce">
+                {cartCount}
+              </span>
+            )}
+          </div>
+          
+          {/* Botón Menú Móvil (YA EXISTE...) */}
+          {/* ... */}
+        </div>
+        
           <div className="relative group cursor-pointer shrink-0" onClick={onOpenCart}>
             <ShoppingBag className="w-6 h-6 text-slate-300 group-hover:text-cyan-400 transition-colors" />
             {cartCount > 0 && (

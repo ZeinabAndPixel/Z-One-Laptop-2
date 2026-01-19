@@ -7,7 +7,7 @@ import FilterSidebar from './components/FilterSidebar';
 import CartDrawer from './components/CartDrawer';
 import Checkout from './components/Checkout';
 import PCBuilder from './components/PCBuilder';
-
+import AuthModal from './components/AuthModal'; // Importar el nuevo componente
 import Toast from './components/Toast';
 import ChatAssistant from './components/ChatAssistant'; // <--- Añade esta línea
 import { SecurityModal, SecurityBanner } from './components/SecurityFeatures';
@@ -20,7 +20,8 @@ const App: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+const [user, setUser] = useState<any>(null); // Estado para el usuario
+  const [isAuthOpen, setIsAuthOpen] = useState(false); // Estado para abrir el modal
   // Estados de UI/Filtros
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [activeBrand, setActiveBrand] = useState("Todas");
@@ -37,6 +38,12 @@ const App: React.FC = () => {
   
   // Toast State
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+useEffect(() => {
+    const savedUser = localStorage.getItem('z_one_user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
 
   // 1. Efecto para cargar datos de Neon DB
   useEffect(() => {
@@ -48,6 +55,17 @@ const App: React.FC = () => {
         // Mapeo seguro en caso de que la DB devuelva nombres de columna en snake_case
         // Si tu DB ya usa camelCase, esto no rompe nada.
         // Mapeo corregido para coincidir con tu SQL de Neon
+        const handleLoginSuccess = (userData: any) => {
+    setUser(userData);
+    localStorage.setItem('z_one_user', JSON.stringify(userData)); // Guardar sesión simple
+    setToastMessage(`Bienvenido, ${userData.nombre_completo}`);
+    setIsAuthOpen(false);
+  };
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('z_one_user');
+    setToastMessage("Has cerrado sesión");
+  };
 const formattedData: Product[] = data.map((item: any) => ({
   id: item.id,
   name: item.nombre,           // Cambiado de item.name a item.nombre
@@ -214,13 +232,22 @@ const formattedData: Product[] = data.map((item: any) => ({
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500 selection:text-slate-900">
       <SecurityBanner />
       <SecurityModal />
-
+{/* Agregar el Modal de Auth */}
+      {isAuthOpen && (
+        <AuthModal 
+          onClose={() => setIsAuthOpen(false)} 
+          onLoginSuccess={handleLoginSuccess} 
+        />
+      )}
       <Navbar 
         cartCount={totalItemsInCart} 
         onOpenCart={() => setIsCartOpen(true)}
         onSelectCategory={handleNavCategorySelect}
         searchTerm={searchTerm}
         onSearchSubmit={setSearchTerm}
+        user={user}
+        onOpenLogin={() => setIsAuthOpen(true)}
+        onLogout={handleLogout}
       />
       
       <CartDrawer 

@@ -14,6 +14,7 @@ type Step = 'shipping' | 'payment' | 'review' | 'success';
 type ShippingMethod = 'standard' | 'express';
 type PaymentMethod = 'card' | 'transfer';
 // Cambia la línea de inicio por esta:
+
 const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart, onOrderComplete }) => {
   const [currentStep, setCurrentStep] = useState<Step>('shipping');
   const [isLoading, setIsLoading] = useState(false);
