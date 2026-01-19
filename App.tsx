@@ -55,17 +55,7 @@ useEffect(() => {
         // Mapeo seguro en caso de que la DB devuelva nombres de columna en snake_case
         // Si tu DB ya usa camelCase, esto no rompe nada.
         // Mapeo corregido para coincidir con tu SQL de Neon
-        const handleLoginSuccess = (userData: any) => {
-    setUser(userData);
-    localStorage.setItem('z_one_user', JSON.stringify(userData)); // Guardar sesión simple
-    setToastMessage(`Bienvenido, ${userData.nombre_completo}`);
-    setIsAuthOpen(false);
-  };
-  const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem('z_one_user');
-    setToastMessage("Has cerrado sesión");
-  };
+     
 const formattedData: Product[] = data.map((item: any) => ({
   id: item.id,
   name: item.nombre,           // Cambiado de item.name a item.nombre
@@ -88,7 +78,17 @@ const formattedData: Product[] = data.map((item: any) => ({
 
     fetchCatalog();
   }, []);
-
+   const handleLoginSuccess = (userData: any) => {
+    setUser(userData);
+    localStorage.setItem('z_one_user', JSON.stringify(userData)); // Guardar sesión simple
+    setToastMessage(`Bienvenido, ${userData.nombre_completo}`);
+    setIsAuthOpen(false);
+  };
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('z_one_user');
+    setToastMessage("Has cerrado sesión");
+  };
   // 2. Calcular filtros dinámicos basados en los datos cargados
   const derivedCategories = useMemo(() => ["Todos", ...new Set(products.map(p => p.category))], [products]);
   const derivedBrands = useMemo(() => ["Todas", ...new Set(products.map(p => p.brand))], [products]);

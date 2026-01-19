@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Search, Menu, X, Zap } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X, Zap, User } from 'lucide-react';
 
 interface NavbarProps {
   cartCount: number;
@@ -7,18 +7,20 @@ interface NavbarProps {
   onSelectCategory: (category: string) => void;
   searchTerm: string;
   onSearchSubmit: (term: string) => void;
-  user: any; // <--- Nuevo
-  onOpenLogin: () => void; // <--- Nuevo
-  onLogout: () => void; // <--- Nuevo
+  user: any; 
+  onOpenLogin: () => void;
+  onLogout: () => void;
 }
-
 
 const Navbar: React.FC<NavbarProps> = ({ 
   cartCount, 
   onOpenCart, 
   onSelectCategory,
   searchTerm,
-  onSearchSubmit
+  onSearchSubmit,
+  user,
+  onOpenLogin,
+  onLogout
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -81,7 +83,7 @@ const Navbar: React.FC<NavbarProps> = ({
           <button onClick={() => handleNavClick('Todos')} className="hover:text-cyan-400 transition-colors text-cyan-400">Ofertas</button>
         </div>
 
-        {/* Right Section: Search & Cart */}
+        {/* Right Section: Search & User & Cart */}
         <div className="flex items-center gap-4 flex-1 justify-end">
           
           {/* Desktop Search Form */}
@@ -108,7 +110,8 @@ const Navbar: React.FC<NavbarProps> = ({
               )}
             </form>
           </div>
-{/* --- PEGA AQUÍ EL CÓDIGO NUEVO --- */}
+
+          {/* Sección de Usuario */}
           {user ? (
             <div className="hidden md:flex items-center gap-3 mr-2">
               <div className="text-right">
@@ -124,9 +127,8 @@ const Navbar: React.FC<NavbarProps> = ({
               <User className="w-5 h-5" /> Login
             </button>
           )}
-          {/* ---------------------------------- */}
 
-          {/* Botón del Carrito (YA EXISTE, DÉJALO IGUAL) */}
+          {/* Botón del Carrito */}
           <div className="relative group cursor-pointer shrink-0" onClick={onOpenCart}>
             <ShoppingBag className="w-6 h-6 text-slate-300 group-hover:text-cyan-400 transition-colors" />
             {cartCount > 0 && (
@@ -136,18 +138,7 @@ const Navbar: React.FC<NavbarProps> = ({
             )}
           </div>
           
-          {/* Botón Menú Móvil (YA EXISTE...) */}
-          {/* ... */}
-        </div>
-        
-          <div className="relative group cursor-pointer shrink-0" onClick={onOpenCart}>
-            <ShoppingBag className="w-6 h-6 text-slate-300 group-hover:text-cyan-400 transition-colors" />
-            {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-cyan-500 text-slate-900 text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center animate-bounce">
-                {cartCount}
-              </span>
-            )}
-          </div>
+          {/* Botón Menú Móvil */}
           <button 
             className="md:hidden text-slate-300"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -189,6 +180,20 @@ const Navbar: React.FC<NavbarProps> = ({
           <button onClick={() => handleNavClick('Laptops')} className="text-left text-slate-300 hover:text-cyan-400">Laptops</button>
           <button onClick={() => handleNavClick('Componentes')} className="text-left text-slate-300 hover:text-cyan-400">Componentes</button>
           <button onClick={() => handleNavClick('Todos')} className="text-left text-cyan-400 font-bold">Ofertas</button>
+          
+          {/* Opción de Login/Logout en Móvil */}
+          <div className="pt-4 border-t border-slate-800">
+            {user ? (
+              <div className="flex justify-between items-center">
+                <span className="text-slate-300">{user.nombre_completo}</span>
+                <button onClick={onLogout} className="text-red-400 text-sm">Salir</button>
+              </div>
+            ) : (
+              <button onClick={onOpenLogin} className="flex items-center gap-2 text-slate-300 hover:text-white">
+                <User className="w-4 h-4" /> Iniciar Sesión
+              </button>
+            )}
+          </div>
         </div>
       )}
     </nav>
