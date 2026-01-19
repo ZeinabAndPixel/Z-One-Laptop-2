@@ -95,11 +95,36 @@ setProducts(formattedData);
   // 2. Calcular filtros dinámicos basados en los datos cargados
   const derivedCategories = useMemo(() => ["Todos", ...new Set(products.map(p => p.category))], [products]);
   const derivedBrands = useMemo(() => ["Todas", ...new Set(products.map(p => p.brand))], [products]);
-
-  // 3. Lógica de filtrado (igual que antes, pero usando 'products' del estado)
+// 3. Lógica de filtrado INTELIGENTE
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
-      const categoryMatch = activeCategory === "Todos" || product.category === activeCategory;
+      
+      // LOGICA DE CATEGORÍAS
+      let categoryMatch = false;
+
+      if (activeCategory === "Todos") {
+        categoryMatch = true;
+      } 
+      else if (activeCategory === "Componentes") {
+        // AQUÍ ESTÁ EL TRUCO:
+        // Definimos qué categorías de tu Base de Datos cuentan como "Componentes"
+        const componentesReales = [
+          "Procesadores", 
+          "Gráficas", 
+          "RAM", 
+          "Almacenamiento", 
+          "Tarjetas Madre", 
+          "Fuentes de Poder", 
+          "Gabinetes"
+        ];
+        categoryMatch = componentesReales.includes(product.category);
+      } 
+      else {
+        // Para "Laptops" y cualquier otra que coincida exacto
+        categoryMatch = product.category === activeCategory;
+      }
+
+      // Resto de filtros (Marca y Buscador) se mantienen igual
       const brandMatch = activeBrand === "Todas" || product.brand === activeBrand;
       const term = searchTerm.toLowerCase();
       const searchMatch = 
@@ -110,6 +135,7 @@ setProducts(formattedData);
       return categoryMatch && brandMatch && searchMatch;
     });
   }, [activeCategory, activeBrand, searchTerm, products]);
+
 
   const addToCart = (product: Product) => {
     setCart(prevCart => {
