@@ -457,10 +457,10 @@ setProducts(formattedData);
 
         </div>
         <div className="mt-16 pt-8 border-t border-slate-900 text-center text-slate-600 text-sm">
-          © {new Date().getFullYear()} Z-One Laptop Store. Todos los derechos reservados.
+          © {new Date().getFullYear()} Sitio web creado por Zeinab Muslumani. Z-One Laptop Store. Todos los derechos reservados.
         </div>
       
-    
+    {/* 1. Sección de Notificaciones (Toast) */}
 {/* 1. Sección de Notificaciones (Toast) */}
       {toastMessage && (
         <Toast 
