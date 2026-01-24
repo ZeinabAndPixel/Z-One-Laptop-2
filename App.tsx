@@ -18,6 +18,7 @@ import { CoverBanner, OfferBanner } from './components/PromoBanners';
 
 const App: React.FC = () => {
   // Estado de Datos
+    // Estado de Datos
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
