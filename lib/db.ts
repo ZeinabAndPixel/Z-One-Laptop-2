@@ -109,6 +109,20 @@ export const getProducts = async () => {
   }
 };
 
+// --- OBTENER TODOS LOS PRODUCTOS (ADMIN - Ver todo) ---
+// Esta es la nueva función que usará tu Dashboard
+export const getAllProducts = async () => {
+  try {
+    // SIN el filtro "WHERE stock > 0"
+    const { rows } = await pool.query('SELECT * FROM productos ORDER BY id DESC');
+    return rows;
+  } catch (error) {
+    console.error("Error cargando inventario admin:", error);
+    return [];
+  }
+};
+
+
 // --- OBTENER ORDENES (Cajero) ---
 export const getOrders = async () => {
   try {

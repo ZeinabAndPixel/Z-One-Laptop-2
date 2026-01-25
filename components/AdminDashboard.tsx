@@ -17,22 +17,14 @@ const AdminDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Cargar productos
-  const fetchProducts = async () => {
+const fetchProducts = async () => {
     setLoading(true);
     try {
-      // Reutilizamos tu API de productos existente o creamos una nueva que traiga TODO (incluyendo stock 0)
-      // Para admin, mejor llamar directo a la API nueva si quieres ver ocultos, 
-      // pero por ahora usaremos la lógica de cliente para simplificar.
-      // NOTA: Lo ideal es que 'getProducts' traiga el stock.
-      // Aquí simularemos una llamada a la API de admin para obtener la lista "cruda"
-      // (En tu caso, puedes usar la misma getProducts de lib/db.ts si le quitas el filtro stock > 0 para el admin)
-      // Por simplicidad, asumiremos que traemos todo.
+      // ANTES: usaba mod.getProducts()
+      // AHORA: usa mod.getAllProducts() para ver items sin stock
+      const res = await import('../lib/db').then(mod => mod.getAllProducts());
       
-      // Hacemos un fetch a tu API de productos (o una nueva ruta admin GET)
-      // Como no tenemos ruta GET en admin.ts, usaremos la de productos normal por ahora.
-       const res = await import('../lib/db').then(mod => mod.getProducts());
-       // Convertimos al formato AdminProduct
-       const formatted = res.map((p: any) => ({
+      const formatted = res.map((p: any) => ({
          ...p,
          id: p.id,
          name: p.nombre,
