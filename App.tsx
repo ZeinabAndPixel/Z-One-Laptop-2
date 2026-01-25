@@ -16,6 +16,7 @@ import { Product, CartItem } from './types';
 import { Zap, Monitor, MousePointer2, Filter, Search, MapPin, Phone, Mail, Loader2, Database } from 'lucide-react';
 import { CoverBanner, OfferBanner } from './components/PromoBanners';
 import CashierDashboard from './components/CashierDashboard';
+import AdminDashboard from './components/AdminDashboard';
 
 const App: React.FC = () => {
   // Estado de Datos
@@ -229,6 +230,22 @@ setProducts(formattedData);
     setSearchTerm("");
   };
 
+  // --- NUEVA FUNCIÓN: Manejar clic en Banner ---
+  const handleViewFeaturedProduct = (productName: string) => {
+    // 1. Reseteamos filtros para asegurarnos de encontrar el producto
+    setActiveCategory("Todos");
+    setActiveBrand("Todas");
+    
+    // 2. Ponemos el nombre del producto en el buscador
+    setSearchTerm(productName);
+    
+    // 3. Desplazamos la vista hasta el catálogo suavemente
+    const catalogElement = document.getElementById('catalog');
+    if (catalogElement) {
+      catalogElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   const totalItemsInCart = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   // ----------------------------------------------------------------------
@@ -270,6 +287,7 @@ setProducts(formattedData);
 
 
 // VERIFICACIÓN DE CAJERO
+if (user) {
 if (user && user.rol === 'cajero') {
   return (
     <>
@@ -285,7 +303,19 @@ if (user && user.rol === 'cajero') {
     </>
   );
 }
-
+if (user.rol === 'admin') {
+    return (
+      <>
+        <Navbar 
+          user={user} onLogout={handleLogout} 
+          cartCount={0} onOpenCart={()=>{}} onSelectCategory={()=>{}} searchTerm="" onSearchSubmit={()=>{}} onOpenLogin={()=>{}}
+        />
+        <AdminDashboard />
+        <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
+      </>
+    );
+  }
+}
 // ... Aquí sigue tu return normal de la tienda 
 
   return (
@@ -347,9 +377,10 @@ if (user && user.rol === 'cajero') {
         <CoverBanner />
 
         <Hero onOpenBuilder={() => setIsBuilderOpen(true)} />
+{/* 2. PASAMOS LA FUNCIÓN AL BANNER */}
+        <OfferBanner onViewProduct={handleViewFeaturedProduct} />
 
-          {/* 2. AGREGA ESTO AQUÍ (Publicidad antes del catálogo) */}
-        <OfferBanner />
+   
         
         {/* CATALOG SECTION */}
         <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="catalog">
