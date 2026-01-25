@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, ShoppingBag } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react'; // Quitamos 'Star' de los imports
 import { Product } from '../types';
 
 interface ProductCardProps {
@@ -10,19 +10,19 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   return (
     <div className="group relative bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-700 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-2 flex flex-col h-full">
-      {/* Badge */}
+      {/* Badge de Marca */}
       <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-xs font-bold text-white z-10 border border-slate-700">
         {product.brand}
       </div>
 
-      {/* Image Container */}
+      {/* Contenedor de Imagen */}
       <div className="relative h-56 overflow-hidden bg-slate-900 p-4">
         <img 
           src={product.image} 
           alt={product.name} 
           className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
         />
-        {/* Overlay Action */}
+        {/* Botón flotante al pasar el mouse */}
         <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <button 
             onClick={() => onAddToCart(product)}
@@ -33,20 +33,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         </div>
       </div>
 
-      {/* Content */}
+      {/* Contenido de la Tarjeta */}
       <div className="p-5 flex-grow flex flex-col">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors line-clamp-1">{product.name}</h3>
-          <div className="flex items-center gap-1 text-yellow-400 text-sm">
-            <Star className="w-4 h-4 fill-current" />
-            <span>{product.rating}</span>
-          </div>
+        {/* Título (Ahora ocupa todo el ancho porque quitamos la estrella) */}
+        <div className="mb-2">
+          <h3 className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors line-clamp-1">
+            {product.name}
+          </h3>
         </div>
+        
+        {/* Descripción corta o categoría */}
         <p className="text-slate-400 text-sm mb-4 line-clamp-3 flex-grow min-h-[60px]">
-  {product.description || product.category}
-</p>
+          {product.description || product.category}
+        </p>
 
-        {/* Specs Pills */}
+        {/* Etiquetas de especificaciones */}
         <div className="flex flex-wrap gap-2 mb-4">
           {product.specs.slice(0, 2).map((spec, idx) => (
             <span key={idx} className="text-xs bg-slate-700/50 text-slate-300 px-2 py-1 rounded border border-slate-600">
@@ -55,14 +56,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
           ))}
         </div>
 
+        {/* Precio y Botón Móvil */}
         <div className="flex items-end justify-between mt-auto">
           <div>
-            <p className="text-xs text-slate-500">Precio</p>
+            <p className="text-xs text-slate-500 uppercase font-bold">Precio</p>
             <p className="text-2xl font-bold text-white">${product.price}</p>
           </div>
           <button 
             onClick={() => onAddToCart(product)}
-            className="md:hidden bg-slate-700 p-2 rounded-lg text-white active:bg-cyan-500 active:text-slate-900 transition-colors"
+            className="md:hidden bg-slate-700 p-3 rounded-xl text-white active:bg-cyan-500 active:text-slate-900 transition-colors"
           >
             <ShoppingBag className="w-5 h-5" />
           </button>

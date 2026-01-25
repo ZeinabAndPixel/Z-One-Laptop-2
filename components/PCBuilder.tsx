@@ -69,7 +69,7 @@ const PCBuilder: React.FC<PCBuilderProps> = ({ onClose, onAddToCart }) => {
     }
   };
 
-  const totalPrice = Object.values(selection).reduce((sum, item) => sum + (item?.price || 0), 0);
+  const totalPrice = Object.values(selection).reduce((sum, item) => sum + (item?.precio || 0), 0);
   const totalItems = Object.values(selection).filter(Boolean).length;
 
   const handleFinish = () => {
