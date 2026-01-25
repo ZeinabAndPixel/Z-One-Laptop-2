@@ -42,10 +42,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
             <span>{product.rating}</span>
           </div>
         </div>
-        
-        <p className="text-slate-400 text-sm mb-4 line-clamp-2 flex-grow">
-          {product.category}
-        </p>
+        <p className="text-slate-400 text-sm mb-4 line-clamp-3 flex-grow min-h-[60px]">
+  {product.description || product.category}
+</p>
 
         {/* Specs Pills */}
         <div className="flex flex-wrap gap-2 mb-4">

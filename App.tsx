@@ -58,18 +58,25 @@ useEffect(() => {
         // Mapeo seguro en caso de que la DB devuelva nombres de columna en snake_case
         // Si tu DB ya usa camelCase, esto no rompe nada.
         // Mapeo corregido para coincidir con tu SQL de Neon
-     const formattedData: Product[] = data.map((item: any) => ({
+     // Dentro de App.tsx, en el useEffect de fetchCatalog:
+
+const formattedData: Product[] = data.map((item: any) => ({
   id: item.id,
-  name: item.nombre,           
-  category: item.categoria,    
-  brand: item.marca,           
-  price: Number(item.precio), // Usamos 'precio' directo de tu tabla
-  rating: 5,                  // Valor por defecto ya que la tabla no tiene rating
-  image: item.imagen_url,     
-  // AQUÍ ESTÁ LA MAGIA: Convertimos tu descripción de texto en una lista de specs
+  name: item.nombre,
+  category: item.categoria,
+  brand: item.marca,
+  price: Number(item.precio),
+  rating: 5,
+  image: item.imagen_url,
+  
+  // Mantenemos tu lógica actual de specs (usando la columna 'descripcion' original)
   specs: item.descripcion 
     ? item.descripcion.split(',').map((s: string) => s.trim()) 
-    : ["Especificación estándar"]
+    : ["Especificación estándar"],
+
+  // NUEVO: Mapeamos la columna 'detalles' a 'description'
+  // Si no tiene detalles, usamos la categoría como texto de relleno
+  description: item.detalles || item.categoria 
 }));
 
 setProducts(formattedData);
