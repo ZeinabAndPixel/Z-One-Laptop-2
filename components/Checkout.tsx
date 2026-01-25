@@ -24,6 +24,8 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart, on
   const [shippingData, setShippingData] = useState({
     fullName: '',
     cedula: '',
+    email: '',   
+    phone: '',   
     address: '',
     city: '',
     method: 'standard' as ShippingMethod
@@ -38,9 +40,11 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart, on
 
   // Validation
   const isShippingValid = shippingData.fullName.trim() !== '' && 
-                          shippingData.cedula.trim() !== '' && 
-                          shippingData.address.trim() !== '' && 
-                          shippingData.city.trim() !== '';
+                        shippingData.cedula.trim() !== '' && 
+                        shippingData.email.trim() !== '' &&  // <--- Nuevo
+                        shippingData.phone.trim() !== '' &&  // <--- Nuevo
+                        shippingData.address.trim() !== '' && 
+                        shippingData.city.trim() !== '';
 
   // Handlers
   const handleNextStep = () => {
@@ -59,13 +63,13 @@ const handlePlaceOrder = async () => { // Añadimos 'async'
     
     try {
       // PREPARAR LOS DATOS PARA NEON
-      const customerData = {
-  cedula: shippingData.cedula, // <--- Enviamos la cédula real
-  name: shippingData.fullName,
-  email: `${shippingData.fullName.toLowerCase().replace(' ', '.')}@example.com`,
-  phone: "0424-0000000",
-  address: `${shippingData.address}, ${shippingData.city}`
-};
+     const customerData = {
+      cedula: shippingData.cedula,
+      name: shippingData.fullName,
+      email: shippingData.email,  // <--- ¡AHORA SÍ ES EL REAL!
+      phone: shippingData.phone,  // <--- ¡AHORA SÍ ES EL REAL!
+      address: `${shippingData.address}, ${shippingData.city}`
+    };
 
 await onOrderComplete(customerData); // LLAMADA REAL A LA NUBE
       // Si todo sale bien, mostramos el éxito
@@ -184,7 +188,33 @@ await onOrderComplete(customerData); // LLAMADA REAL A LA NUBE
                     required
                   />
                 </div>
+// ... justo debajo del input de Cédula o Nombre
 
+{/* Campo de Correo */}
+<div>
+  <label className="block text-sm text-slate-400 mb-1">Correo Electrónico <span className="text-red-500">*</span></label>
+  <input 
+    type="email" 
+    value={shippingData.email}
+    onChange={(e) => setShippingData({...shippingData, email: e.target.value})}
+    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors"
+    placeholder="tu@correo.com"
+    required
+  />
+</div>
+
+      {/* Campo de Teléfono */}
+<div>
+             <label className="block text-sm text-slate-400 mb-1">Teléfono <span className="text-red-500">*</span></label>
+              <input 
+           type="tel" 
+           value={shippingData.phone}
+            onChange={(e) => setShippingData({...shippingData, phone: e.target.value})}
+           className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors"
+           placeholder="0414-1234567"
+            required
+  />
+</div>
                 <div>
                   <label className="block text-sm text-slate-400 mb-1">Dirección de Entrega <span className="text-red-500">*</span></label>
                   <input 
