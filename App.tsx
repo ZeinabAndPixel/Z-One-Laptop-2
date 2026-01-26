@@ -126,7 +126,7 @@ setProducts(formattedData);
           "Almacenamiento", 
           "Tarjetas Madre", 
           "Fuentes de Poder", 
-          "Case"
+          "Gabinetes"
         ];
         categoryMatch = componentesReales.includes(product.category);
       } 
