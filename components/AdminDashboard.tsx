@@ -223,7 +223,7 @@ const fetchProducts = async () => {
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Categoría</label>
                   <select className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white"
-                    value={editingProduct.category} onChange={e => setEditingProduct({...editingProduct, category: e.target.value})}>
+                    value={editingProduct.category} onChange={e => setEditingProduct({...editingProduct, category: e.target.value})} required>
                     <option value="Laptops">Laptops</option>
                     <option value="Componentes">Componentes</option>
                     <option value="Periféricos">Periféricos</option>
