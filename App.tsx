@@ -219,11 +219,24 @@ setProducts(formattedData);
     setCart([]);
   };
 
-  const handleOpenCheckout = () => {
+ const handleOpenCheckout = () => {
+    // NUEVA LÓGICA DE SEGURIDAD:
+    if (!user) {
+      // 1. Cerramos el carrito para que no estorbe
+      setIsCartOpen(false);
+      
+      // 2. Avisamos al usuario por qué no puede seguir
+      setToastMessage("🔒 Inicia sesión o regístrate para finalizar tu compra.");
+      
+      // 3. Abrimos el modal de Login automáticamente
+      setIsAuthOpen(true);
+      return; // Detenemos la función aquí
+    }
+
+    // Si hay usuario, procedemos normal
     setIsCartOpen(false);
     setIsCheckoutOpen(true);
   };
-
   const handleNavCategorySelect = (category: string) => {
     setActiveCategory(category);
     setActiveBrand("Todas");
@@ -354,6 +367,7 @@ if (user.rol === 'admin') {
           onClose={() => setIsCheckoutOpen(false)}
           onClearCart={clearCart}
           onOrderComplete={handlePurchaseComplete} // <--- Añade esta línea
+          user={user} // <--- AGREGA ESTO AQUÍ
         />
       )}
     

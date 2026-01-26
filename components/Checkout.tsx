@@ -8,24 +8,25 @@ interface CheckoutProps {
   onClose: () => void;
   onClearCart: () => void;
   onOrderComplete?: (data: any) => void;
+  user?: any; // <--- Nuevo prop opcional
 }
 
-const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart }) => {
+const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart, user }) => {
   const [step, setStep] = useState<'details' | 'confirmation'>('details');
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
-    fullName: '',
-    cedula: '',
-    phone: '',
-    email: '',
-    address: '', // Agregado para que coincida con la DB
-    paymentMethod: 'store', // 'store' | 'pago_movil'
-    reference: '', // Nuevo
-    receiptImage: '' // Nuevo (Base64 string)
+    // Si existe usuario, usa sus datos, si no, cadena vacía
+    fullName: user?.nombre_completo || '', 
+    cedula: user?.cedula || '',
+    phone: user?.telefono || '',
+    email: user?.email || '',
+    address: user?.direccion || '', 
+    paymentMethod: 'store',
+    reference: '',
+    receiptImage: ''
   });
-
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   // Manejo de carga de imagen (Convertir a Base64 simple)
@@ -204,7 +205,7 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart }) 
                 {/* Inputs de Referencia y Captura */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-xs text-slate-500 uppercase font-bold">Referencia (4 últimos) <span className="text-red-500">*</span></label>
+                    <label className="text-xs text-slate-500 uppercase font-bold">Referencia COMPLETA <span className="text-red-500">*</span></label>
                     <input 
                       type="text"
                       placeholder="Ej: 1234" 
