@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, CheckCircle, Store, Smartphone, CreditCard, Loader2 } from 'lucide-react';
+import React, { useState, ChangeEvent } from 'react';
+import { X, CheckCircle, Store, Smartphone, CreditCard, Loader2, Upload, Copy } from 'lucide-react';
 import { saveOrder } from '../lib/db';
 import { CartItem } from '../types'; 
 
@@ -13,8 +13,6 @@ interface CheckoutProps {
 const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart }) => {
   const [step, setStep] = useState<'details' | 'confirmation'>('details');
   const [loading, setLoading] = useState(false);
-  
-  // AHORA orderId ES STRING (porque tu base de datos usa UUIDs)
   const [orderId, setOrderId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
@@ -22,33 +20,53 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart }) 
     cedula: '',
     phone: '',
     email: '',
-    paymentMethod: 'store' // 'store' | 'pago_movil'
+    address: '', // Agregado para que coincida con la DB
+    paymentMethod: 'store', // 'store' | 'pago_movil'
+    reference: '', // Nuevo
+    receiptImage: '' // Nuevo (Base64 string)
   });
 
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
+  // Manejo de carga de imagen (Convertir a Base64 simple)
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, receiptImage: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async () => {
-    // Validación básica
+    // 1. Validación General
     if (!formData.fullName || !formData.cedula || !formData.phone) {
       alert("Por favor completa los campos obligatorios: Nombre, Cédula y Teléfono.");
       return;
     }
 
+    // 2. Validación Específica de Pago Móvil
+    if (formData.paymentMethod === 'pago_movil') {
+      if (!formData.reference || formData.reference.length < 4) {
+        alert("Por favor ingresa los últimos 4 dígitos o la referencia completa del pago.");
+        return;
+      }
+    }
+
     setLoading(true);
     try {
-      // Llamamos a la función blindada de lib/db.ts
       const newOrderId = await saveOrder({
         ...formData,
         total: total
       }, cartItems);
       
-      // Guardamos el UUID recibido
       setOrderId(newOrderId);
       setStep('confirmation');
-      onClearCart(); // Limpiamos el carrito visual
+      onClearCart();
     } catch (error: any) {
       console.error(error);
-      // Mostramos el error real que viene de la base de datos
       alert(`Error al procesar el pedido: ${error.message}`);
     } finally {
       setLoading(false);
@@ -56,13 +74,13 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart }) 
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm animate-fade-in">
-      <div className="bg-slate-900 w-full max-w-2xl rounded-2xl border border-slate-700 shadow-2xl p-6 relative overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm animate-fade-in overflow-y-auto">
+      <div className="bg-slate-900 w-full max-w-2xl rounded-2xl border border-slate-700 shadow-2xl p-6 relative my-8">
         
         {/* Botón Cerrar */}
         <button 
           onClick={onClose} 
-          className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10"
         >
           <X className="w-6 h-6" />
         </button>
@@ -72,21 +90,21 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart }) 
             <div className="border-b border-slate-800 pb-4">
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                 <Store className="text-cyan-400 w-6 h-6" /> 
-                Retiro en Tienda
+                Finalizar Compra
               </h2>
               <p className="text-slate-400 text-sm mt-1">
-                Completa tus datos para reservar tu pedido. Total a pagar: <span className="text-cyan-400 font-bold">${total}</span>
+                Total a pagar: <span className="text-cyan-400 font-bold">${total}</span>
               </p>
             </div>
 
-            {/* Formulario de Datos */}
+            {/* Formulario de Datos Personales */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-xs text-slate-500 uppercase font-bold">Nombre Completo <span className="text-red-500">*</span></label>
                 <input 
                   type="text"
                   placeholder="Ej: Zeinab Muslumani" 
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 focus:outline-none transition-colors"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 focus:outline-none"
                   value={formData.fullName}
                   onChange={e => setFormData({...formData, fullName: e.target.value})}
                 />
@@ -96,7 +114,7 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart }) 
                 <input 
                   type="text"
                   placeholder="Ej: 30123456" 
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 focus:outline-none transition-colors"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 focus:outline-none"
                   value={formData.cedula}
                   onChange={e => setFormData({...formData, cedula: e.target.value})}
                 />
@@ -106,40 +124,39 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart }) 
                 <input 
                   type="tel"
                   placeholder="Ej: 0414-1234567" 
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 focus:outline-none transition-colors"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 focus:outline-none"
                   value={formData.phone}
                   onChange={e => setFormData({...formData, phone: e.target.value})}
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-slate-500 uppercase font-bold">Correo (Opcional)</label>
+                <label className="text-xs text-slate-500 uppercase font-bold">Dirección (Opcional)</label>
                 <input 
-                  type="email"
-                  placeholder="Ej: cliente@gmail.com" 
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 focus:outline-none transition-colors"
-                  value={formData.email}
-                  onChange={e => setFormData({...formData, email: e.target.value})}
+                  type="text"
+                  placeholder="Ej: Urb. Los Mangos..." 
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-cyan-500 focus:outline-none"
+                  value={formData.address}
+                  onChange={e => setFormData({...formData, address: e.target.value})}
                 />
-                <p className="text-[10px] text-slate-600">Si no tienes, usaremos uno temporal.</p>
               </div>
             </div>
 
             {/* Selección de Método de Pago */}
-            <div className="space-y-3 pt-2">
+            <div className="space-y-3 pt-4 border-t border-slate-800">
               <h3 className="text-white font-bold text-sm uppercase tracking-wider">Método de Pago</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button 
                   onClick={() => setFormData({...formData, paymentMethod: 'pago_movil'})}
                   className={`p-4 rounded-xl border flex items-center gap-3 transition-all ${
                     formData.paymentMethod === 'pago_movil' 
-                    ? 'border-cyan-500 bg-cyan-500/10 text-white shadow-[0_0_15px_rgba(6,182,212,0.2)]' 
+                    ? 'border-cyan-500 bg-cyan-500/10 text-white ring-1 ring-cyan-500' 
                     : 'border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800'
                   }`}
                 >
                   <Smartphone className="w-5 h-5" />
                   <div className="text-left">
-                    <span className="block font-bold text-sm">Pago Móvil</span>
-                    <span className="block text-xs opacity-70">Pagar ahora</span>
+                    <span className="block font-bold text-sm">Pago Móvil / Transferencia</span>
+                    <span className="block text-xs opacity-70">Reportar pago ahora</span>
                   </div>
                 </button>
 
@@ -147,7 +164,7 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart }) 
                   onClick={() => setFormData({...formData, paymentMethod: 'store'})}
                   className={`p-4 rounded-xl border flex items-center gap-3 transition-all ${
                     formData.paymentMethod === 'store' 
-                    ? 'border-cyan-500 bg-cyan-500/10 text-white shadow-[0_0_15px_rgba(6,182,212,0.2)]' 
+                    ? 'border-cyan-500 bg-cyan-500/10 text-white ring-1 ring-cyan-500' 
                     : 'border-slate-800 bg-slate-900/50 text-slate-400 hover:bg-slate-800'
                   }`}
                 >
@@ -160,11 +177,68 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart }) 
               </div>
             </div>
 
-            {/* Botón de Confirmación */}
+            {/* SECCIÓN CONDICIONAL: PAGO MÓVIL */}
+            {formData.paymentMethod === 'pago_movil' && (
+              <div className="bg-slate-950/50 border border-slate-700 rounded-xl p-4 animate-fade-in space-y-4">
+                
+                {/* Datos Bancarios */}
+                <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                  <h4 className="text-cyan-400 font-bold text-sm mb-3 flex items-center gap-2">
+                    <Copy className="w-4 h-4" /> Datos para el pago:
+                  </h4>
+                  <div className="grid grid-cols-2 gap-y-2 text-sm">
+                    <span className="text-slate-400">Banco:</span>
+                    <span className="text-white font-mono font-bold">Banesco (0134)</span>
+                    
+                    <span className="text-slate-400">Teléfono:</span>
+                    <span className="text-white font-mono font-bold">0414-1234567</span>
+                    
+                    <span className="text-slate-400">Cédula:</span>
+                    <span className="text-white font-mono font-bold">V-12.345.678</span>
+                    
+                    <span className="text-slate-400">Monto:</span>
+                    <span className="text-green-400 font-mono font-bold">${total} USD (Tasa BCV)</span>
+                  </div>
+                </div>
+
+                {/* Inputs de Referencia y Captura */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-500 uppercase font-bold">Referencia (4 últimos) <span className="text-red-500">*</span></label>
+                    <input 
+                      type="text"
+                      placeholder="Ej: 1234" 
+                      maxLength={15}
+                      className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 focus:outline-none"
+                      value={formData.reference}
+                      onChange={e => setFormData({...formData, reference: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <label className="text-xs text-slate-500 uppercase font-bold">Comprobante (Opcional)</label>
+                    <label className="flex items-center justify-center w-full p-3 border border-dashed border-slate-600 rounded-xl cursor-pointer hover:bg-slate-800 transition-colors bg-slate-900">
+                      <div className="flex items-center gap-2 text-slate-400 text-sm">
+                        <Upload className="w-4 h-4" />
+                        <span className="truncate max-w-[150px]">
+                          {formData.receiptImage ? "Imagen Cargada" : "Subir Capture"}
+                        </span>
+                      </div>
+                      <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                    </label>
+                  </div>
+                </div>
+                {formData.receiptImage && (
+                    <p className="text-[10px] text-green-400 text-center">✓ Comprobante listo para enviar</p>
+                )}
+              </div>
+            )}
+
+            {/* Botón Confirmar */}
             <button 
               onClick={handleSubmit}
-              disabled={loading || !formData.fullName || !formData.cedula || !formData.phone}
-              className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-4 rounded-xl mt-4 transition-all shadow-lg shadow-cyan-900/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-4 rounded-xl mt-4 shadow-lg shadow-cyan-900/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <> <Loader2 className="w-5 h-5 animate-spin" /> Procesando... </>
@@ -182,28 +256,21 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart }) 
               <CheckCircle className="w-12 h-12 text-green-500" />
             </div>
             
-            <h2 className="text-3xl font-bold text-white mb-2">¡Pedido Reservado!</h2>
+            <h2 className="text-3xl font-bold text-white mb-2">¡Pedido Recibido!</h2>
             <p className="text-slate-400 mb-8 max-w-md mx-auto">
-              Tu pedido ha sido registrado exitosamente.
+              {formData.paymentMethod === 'pago_movil' 
+                ? "Validaremos tu pago a la brevedad." 
+                : "Te esperamos en tienda para completar el pago."}
             </p>
             
             <div className="bg-slate-950 p-6 rounded-2xl max-w-sm mx-auto border border-dashed border-slate-700 mb-8 relative group">
-              <div className="absolute inset-0 bg-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
-              <p className="text-slate-500 text-xs uppercase font-bold mb-2 tracking-widest">Tu ID de Pedido</p>
-              {/* Ajuste de tamaño de fuente para que quepa el UUID */}
-              <p className="text-xl md:text-2xl font-mono font-bold text-cyan-400 break-all select-all">
+              <p className="text-slate-500 text-xs uppercase font-bold mb-2 tracking-widest">ID de Pedido</p>
+              <p className="text-lg md:text-xl font-mono font-bold text-cyan-400 break-all select-all">
                 {orderId}
               </p>
             </div>
-            
-            <div className="bg-blue-900/20 border border-blue-500/30 p-4 rounded-xl text-sm text-blue-200 mb-8 max-w-md mx-auto">
-              📸 <strong>Importante:</strong> Guarda este código. Lo necesitarás para retirar tus productos en caja.
-            </div>
 
-            <button 
-              onClick={onClose} 
-              className="text-cyan-400 hover:text-cyan-300 font-medium hover:underline transition-colors"
-            >
+            <button onClick={onClose} className="text-cyan-400 hover:underline">
               Volver al Catálogo
             </button>
           </div>

@@ -106,7 +106,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, onLoginSuccess }) => {
               </div>
               <div className="relative">
                 <MapPin className="absolute left-3 top-3 w-5 h-5 text-slate-500" />
-                <input name="direccion" onChange={handleChange} placeholder="Dirección de envío" className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 text-white focus:border-cyan-500 outline-none" />
+                <input name="direccion" onChange={handleChange} placeholder="Dirección" className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 pl-10 text-white focus:border-cyan-500 outline-none" />
               </div>
             </>
           )}

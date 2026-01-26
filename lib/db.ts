@@ -16,34 +16,34 @@ const pool = new Pool({ connectionString: getConnectionString() });
 // --- GUARDAR ORDEN (Adaptado a TU esquema exacto) ---
 
 
+// En lib/db.ts
+
 export const saveOrder = async (orderData: any, cartItems: any[]) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    // 1. FORZAR CÉDULA A STRING (Soluciona el error de tipos)
     const cedulaString = String(orderData.cedula).trim(); 
     
-    // 2. GESTIÓN INTELIGENTE DEL CLIENTE
-    // Verificamos si existe en la tabla clientes
+    // GESTIÓN INTELIGENTE DEL CLIENTE (Incluyendo dirección que arreglamos antes)
     const checkQuery = 'SELECT id FROM clientes WHERE id = $1';
     const checkRes = await client.query(checkQuery, [cedulaString]);
+    const clientAddress = orderData.address || ""; 
 
     if (checkRes.rows.length > 0) {
-      // Si existe, actualizamos datos de contacto para no tener celdas viejas/vacias
       await client.query(
-        'UPDATE clientes SET telefono = $1, correo = $2, nombre_completo = $3 WHERE id = $4',
-            [orderData.phone, orderData.email, orderData.fullName, cedulaString]
+        'UPDATE clientes SET telefono = $1, correo = $2, nombre_completo = $3, direccion = $4 WHERE id = $5',
+        [orderData.phone, orderData.email, orderData.fullName, clientAddress, cedulaString]
       );
     } else {
-      // Si no existe, lo creamos limpio
       await client.query(
-        'INSERT INTO clientes (id, nombre_completo, correo, telefono) VALUES ($1, $2, $3, $4)',
-        [cedulaString, orderData.fullName, orderData.email, orderData.phone]
+        'INSERT INTO clientes (id, nombre_completo, correo, telefono, direccion) VALUES ($1, $2, $3, $4, $5)',
+        [cedulaString, orderData.fullName, orderData.email, orderData.phone, clientAddress]
       );
     }
 
-    // 3. GUARDAR COMPRA (Usando la cédula string estandarizada)
+    // 3. GUARDAR COMPRA (AHORA CON REFERENCIA Y COMPROBANTE)
+    // Nota: Si es pago en tienda, referencia y comprobante serán null o vacíos
     const insertOrderQuery = `
       INSERT INTO compras (
         cliente_nombre, 
@@ -51,15 +51,15 @@ export const saveOrder = async (orderData: any, cartItems: any[]) => {
         cliente_telefono, 
         total_pago, 
         metodo_pago, 
+        referencia_pago,   -- Nuevo campo
+        comprobante_url,   -- Nuevo campo
         estado, 
         items, 
         fecha
       ) 
-      VALUES ($1, $2, $3, $4, $5, 'pendiente', $6, NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, 'pendiente', $8, NOW())
       RETURNING id;
     `;
-    
-  
     
     const itemsJson = JSON.stringify(cartItems);
 
@@ -69,12 +69,14 @@ export const saveOrder = async (orderData: any, cartItems: any[]) => {
       orderData.phone,
       orderData.total,
       orderData.paymentMethod,
+      orderData.reference || null,      // Si no hay referencia, enviamos null
+      orderData.receiptImage || null,   // Si no hay imagen, enviamos null
       itemsJson
     ]);
     
-    const orderId = resOrder.rows[0].id; // Esto devolverá un UUID
+    const orderId = resOrder.rows[0].id;
 
-    // PASO 3: RESTAR STOCK (Tabla: productos)
+    // 4. RESTAR STOCK
     for (const item of cartItems) {
       await client.query(
         'UPDATE productos SET stock = stock - $1 WHERE id = $2', 
@@ -89,7 +91,6 @@ export const saveOrder = async (orderData: any, cartItems: any[]) => {
   } catch (error: any) {
     await client.query('ROLLBACK');
     console.error("❌ ERROR BD:", error);
-    // Este mensaje te dirá exactamente qué pasa si falla de nuevo
     throw new Error(error.message || "Error al guardar en base de datos");
   } finally {
     client.release();
