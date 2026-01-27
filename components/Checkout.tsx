@@ -15,6 +15,7 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart, us
   const [step, setStep] = useState<'details' | 'confirmation'>('details');
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [bcvRate, setBcvRate] = useState<number | null>(null);
   
   const [formData, setFormData] = useState({
     // Si existe usuario, usa sus datos, si no, cadena vacía
@@ -28,6 +29,24 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart, us
     receiptImage: ''
   });
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalVES = bcvRate ? total * bcvRate : null;
+
+  // Fetch BCV rate on mount
+  React.useEffect(() => {
+    const fetchBCVRate = async () => {
+      try {
+        const response = await fetch('https://pydolarve.org/api/v1/dollar?window=BCV');
+        const data = await response.json();
+        const rate = data.dollar?.bcv?.price;
+        if (rate && typeof rate === 'number') {
+          setBcvRate(rate);
+        }
+      } catch (error) {
+        console.error('Error fetching BCV rate:', error);
+      }
+    };
+    fetchBCVRate();
+  }, []);
 
   // Manejo de carga de imagen (Convertir a Base64 simple)
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -94,7 +113,8 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart, us
                 Finalizar Compra
               </h2>
               <p className="text-slate-400 text-sm mt-1">
-                Total a pagar: <span className="text-cyan-400 font-bold">${total}</span>
+                Total a pagar: <span className="text-cyan-400 font-bold">${total.toFixed(2)} USD</span>
+                {totalVES && <span className="text-green-400 font-bold ml-2">({totalVES.toLocaleString('es-VE')} VES)</span>}
               </p>
             </div>
 
@@ -202,7 +222,10 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart, us
                     <span className="text-white font-mono font-bold">J-12.345.678</span>
                     
                     <span className="text-slate-400">Monto:</span>
-                    <span className="text-green-400 font-mono font-bold">${total} USD (Tasa BCV)</span>
+                    <div className="text-white font-mono font-bold">
+                      <div>${total.toFixed(2)} USD</div>
+                      {totalVES && <div className="text-green-400">{totalVES.toLocaleString('es-VE')} VES</div>}
+                    </div>
                   </div>
                 </div>
 

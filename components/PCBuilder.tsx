@@ -20,7 +20,8 @@ const STEPS = [
   { id: 'ram', title: 'Memoria RAM', icon: HardDrive, keywords: ['ram', 'memoria', 'ddr4', 'ddr5'] },
   { id: 'gpu', title: 'Tarjeta Gráfica', icon: Monitor, keywords: ['grafica', 'gráfica', 'video', 'gpu', 'rtx', 'gtx'] },
   { id: 'storage', title: 'Almacenamiento', icon: HardDrive, keywords: ['disco', 'ssd', 'hdd', 'almacenamiento', 'nvme'] },
-  { id: 'psu_case', title: 'Fuente / Gabinete', icon: Zap, keywords: ['fuente', 'poder', 'psu', 'gabinete', 'case'] },
+  { id: 'psu', title: 'Fuente de Poder', icon: Zap, keywords: ['fuente', 'poder', 'psu'] },
+  { id: 'case', title: 'Gabinete', icon: Box, keywords: ['gabinete', 'case'] },
 ];
 
 // CAMBIO 2: Desestructuramos el nuevo nombre del prop (onAddMultipleToCart)
@@ -79,8 +80,7 @@ const PCBuilder: React.FC<PCBuilderProps> = ({ onClose, onAddMultipleToCart }) =
   };
 
   const totalPrice = Object.values(selections).reduce((sum, item) => {
-    if (!item || typeof item.price !== 'number') return sum;
-    return sum + item.price;
+    return sum + (item?.price ?? 0);
   }, 0);
 
   // CAMBIO 3: Reescribimos handleFinish para usar la función correcta
@@ -161,7 +161,7 @@ const PCBuilder: React.FC<PCBuilderProps> = ({ onClose, onAddMultipleToCart }) =
                       <div className="p-4">
                         <h4 className="font-bold text-sm line-clamp-2 mb-2 min-h-[2.5rem]">{product.name}</h4>
                         <div className="flex justify-between items-center">
-                          <span className="text-lg font-bold text-cyan-400">${(product.price || 0).toFixed(2)}</span>
+                          <span className="text-lg font-bold text-cyan-400">${(product.price ?? 0).toFixed(2)}</span>
                           {isSelected && <span className="text-xs bg-cyan-500 text-black px-2 py-1 rounded font-bold">Elegido</span>}
                         </div>
                       </div>

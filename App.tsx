@@ -119,7 +119,7 @@ setProducts(formattedData);
         categoryMatch = true;
       } 
       else if (activeCategory === "Componentes") {
-        // AQUÍ ESTÁ EL TRUCO:
+
         // Definimos qué categorías de tu Base de Datos cuentan como "Componentes"
         const componentesReales = [
           "Procesadores", 
