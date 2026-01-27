@@ -31,21 +31,12 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, onClearCart, us
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const totalVES = bcvRate ? total * bcvRate : null;
 
-  // Fetch BCV rate on mount
+  // Load BCV rate from localStorage
   React.useEffect(() => {
-    const fetchBCVRate = async () => {
-      try {
-        const response = await fetch('https://pydolarve.org/api/v1/dollar?window=BCV');
-        const data = await response.json();
-        const rate = data.dollar?.bcv?.price;
-        if (rate && typeof rate === 'number') {
-          setBcvRate(rate);
-        }
-      } catch (error) {
-        console.error('Error fetching BCV rate:', error);
-      }
-    };
-    fetchBCVRate();
+    const savedRate = localStorage.getItem('bcvRate');
+    if (savedRate) {
+      setBcvRate(Number(savedRate));
+    }
   }, []);
 
   // Manejo de carga de imagen (Convertir a Base64 simple)

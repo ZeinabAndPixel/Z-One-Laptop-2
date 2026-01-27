@@ -15,6 +15,7 @@ const AdminDashboard: React.FC = () => {
   const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [bcvRate, setBcvRate] = useState<number>(0);
 
   // Cargar productos
 const fetchProducts = async () => {
@@ -46,6 +47,12 @@ const fetchProducts = async () => {
 
   useEffect(() => {
     fetchProducts();
+    const savedRate = localStorage.getItem('bcvRate');
+    if (savedRate) {
+      setBcvRate(Number(savedRate));
+    } else {
+      setBcvRate(36.5); // Default rate
+    }
   }, []);
 
   const handleSave = async (e: React.FormEvent) => {
@@ -80,6 +87,11 @@ const fetchProducts = async () => {
     } catch (error) {
       alert("Error al guardar");
     }
+  };
+
+  const handleSaveBCVRate = () => {
+    localStorage.setItem('bcvRate', bcvRate.toString());
+    alert('Tasa BCV guardada correctamente');
   };
 
   const handleDelete = async (id: string | number) => {
@@ -143,6 +155,19 @@ const fetchProducts = async () => {
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-slate-400">Tasa BCV:</label>
+              <input
+                type="number"
+                step="0.01"
+                className="w-20 bg-slate-800 border border-slate-700 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-cyan-500"
+                value={bcvRate}
+                onChange={e => setBcvRate(Number(e.target.value))}
+              />
+              <button onClick={handleSaveBCVRate} className="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-sm">
+                Guardar
+              </button>
             </div>
             <button onClick={openNew} className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2">
               <Plus className="w-5 h-5" /> Nuevo
