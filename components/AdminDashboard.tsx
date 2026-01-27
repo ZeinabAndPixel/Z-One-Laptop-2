@@ -247,15 +247,30 @@ const fetchProducts = async () => {
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Categoría</label>
-                  <select className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white"
-                    value={editingProduct.category} onChange={e => setEditingProduct({...editingProduct, category: e.target.value})} required>
-                    <option value="Laptops">Laptops</option>
-                    <option value="Componentes">Componentes</option>
-                    <option value="Periféricos">Periféricos</option>
-                    <option value="Monitores">Monitores</option>
-                    <option value="Computadoras">Computadoras</option>
-                    <option value="Telefonos">Telefonos</option>
-                  </select>
+                  <input 
+                    type="text" 
+                    list="categories"
+                    className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white"
+                    value={editingProduct.category} 
+                    onChange={e => setEditingProduct({...editingProduct, category: e.target.value})} 
+                    required 
+                    placeholder="Escribe o selecciona una categoría"
+                  />
+                  <datalist id="categories">
+                    <option value="Laptops" />
+                    <option value="Procesadores" />
+                    <option value="Tarjetas Madre" />
+                    <option value="Memoria RAM" />
+                    <option value="Tarjetas Gráficas" />
+                    <option value="Almacenamiento" />
+                    <option value="Fuentes de Poder" />
+                    <option value="Gabinetes" />
+                    <option value="Periféricos" />
+                    <option value="Monitores" />
+                    <option value="Computadoras" />
+                    <option value="Teléfonos" />
+                    <option value="Componentes" />
+                  </datalist>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Precio ($)</label>
