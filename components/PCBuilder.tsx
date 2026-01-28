@@ -79,7 +79,7 @@ const PCBuilder: React.FC<PCBuilderProps> = ({ onClose, onAddMultipleToCart }) =
     }
   };
 
-  const totalPrice = Object.values(selections).reduce((sum, item) => {
+  const totalPrice = (Object.values(selections) as (Product | null)[]).reduce<number>((sum, item) => {
     return sum + (item?.price ?? 0);
   }, 0);
 
@@ -115,10 +115,11 @@ const PCBuilder: React.FC<PCBuilderProps> = ({ onClose, onAddMultipleToCart }) =
           {STEPS.map((step, index) => {
             const isSelected = !!selections[step.id];
             const isActive = index === currentStep;
+            const Icon = step.icon;
             return (
               <button key={step.id} onClick={() => setCurrentStep(index)} className={`flex items-center gap-3 p-4 border-l-4 w-full text-left transition-all ${isActive ? 'bg-slate-800 border-cyan-500 text-white' : 'border-transparent text-slate-500'}`}>
                 <div className={`p-2 rounded-lg ${isSelected ? 'bg-green-500/20 text-green-400' : 'bg-slate-800'}`}>
-                  {isSelected ? <CheckCircle className="w-5 h-5" /> : <step.icon className="w-5 h-5" />}
+                  {isSelected ? <CheckCircle className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                 </div>
                 <div className="hidden md:block">
                   <span className="block text-sm font-bold">{step.title}</span>

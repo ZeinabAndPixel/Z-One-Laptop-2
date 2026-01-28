@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Save, X, Search, Package } from 'lucide-react';
 import { Product } from '../types';
+import { getAllProducts } from '../lib/db';
 
 // Definimos la interfaz extendida para incluir 'detalles' y 'stock' si no están en Product
 interface AdminProduct extends Product {
@@ -21,9 +22,8 @@ const AdminDashboard: React.FC = () => {
 const fetchProducts = async () => {
     setLoading(true);
     try {
-      // ANTES: usaba mod.getProducts()
-      // AHORA: usa mod.getAllProducts() para ver items sin stock
-      const res = await import('../lib/db').then(mod => mod.getAllProducts());
+      // Usamos la importación estática de `getAllProducts`
+      const res = await getAllProducts();
       
       const formatted = res.map((p: any) => ({
          ...p,

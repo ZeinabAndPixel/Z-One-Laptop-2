@@ -20,9 +20,16 @@ import AdminDashboard from './components/AdminDashboard';
 import CustomerOrders from './components/CustomerOrders';
 
 const App: React.FC = () => {
-  // Estado de Datos
-    // Estado de Datos
-  const [isCustomerOrdersOpen, setIsCustomerOrdersOpen] = useState(false); // <--- NUEVO
+  // ----------------------------------------------------------------------
+  // App.tsx — Punto de entrada del cliente
+  // - Renderiza la tienda pública y/o paneles según el `user.rol` (cajero/admin/cliente)
+  // - Mantiene estados globales simples en memoria: productos, carrito, usuario,
+  //   modales y filtros. Usa `lib/db.ts` para obtener productos y guardar pedidos.
+  // ----------------------------------------------------------------------
+
+  // -------------------- Estado de UI / Datos -----------------------------
+  // Estados para modales y vistas auxiliares
+  const [isCustomerOrdersOpen, setIsCustomerOrdersOpen] = useState(false); // Modal "Mis Pedidos"
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,16 +59,15 @@ useEffect(() => {
   }, []);
 
   // 1. Efecto para cargar datos de Neon DB
+  // Efecto: carga catálogo desde la base de datos al montar la app
   useEffect(() => {
     const fetchCatalog = async () => {
       try {
         setIsLoading(true);
         const data = await getProducts();
         
-        // Mapeo seguro en caso de que la DB devuelva nombres de columna en snake_case
-        // Si tu DB ya usa camelCase, esto no rompe nada.
-        // Mapeo corregido para coincidir con tu SQL de Neon
-     // Dentro de App.tsx, en el useEffect de fetchCatalog:
+        // Mapeo seguro de las columnas de la base de datos a la interfaz `Product`.
+        // Normalizamos nombres (nombre, marca, categoria, precio, imagen, etc.)
 
 const formattedData: Product[] = data.map((item: any) => ({
   id: item.id,
@@ -94,7 +100,9 @@ setProducts(formattedData);
 
     fetchCatalog();
   }, []);
-   const handleLoginSuccess = (userData: any) => {
+  // Callback: cuando el proceso de autenticación tiene éxito
+  // Guarda el usuario en `localStorage` (sesión simple) y abre un Toast
+  const handleLoginSuccess = (userData: any) => {
     setUser(userData);
     localStorage.setItem('z_one_user', JSON.stringify(userData)); // Guardar sesión simple
     setToastMessage(`Bienvenido, ${userData.nombre_completo}`);
@@ -150,6 +158,7 @@ setProducts(formattedData);
   }, [activeCategory, activeBrand, searchTerm, products]);
 
 
+  // Añadir un producto al carrito (o incrementar cantidad si ya existe)
   const addToCart = (product: Product) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.id === product.id);
@@ -164,6 +173,7 @@ setProducts(formattedData);
     setToastMessage(`¡${product.name} añadido al carrito!`);
   };
 
+  // Añade varios productos (ej. selección completa del PCBuilder)
   const addMultipleToCart = (products: Product[]) => {
     setCart(prevCart => {
       let newCart = [...prevCart];
@@ -199,7 +209,8 @@ setProducts(formattedData);
   const removeFromCart = (id: number) => {
     setCart(prevCart => prevCart.filter(item => item.id !== id));
   };
-// Función para procesar y guardar la compra en la base de datos
+  // handlePurchaseComplete: se llama desde `Checkout` cuando el usuario confirma.
+  // - Calcula el total, llama a `saveOrder` (lib/db.ts) y limpia el carrito.
   const handlePurchaseComplete = async (customerData: any) => {
     try {
       // Calculamos el total del carrito
@@ -221,21 +232,17 @@ setProducts(formattedData);
     setCart([]);
   };
 
- const handleOpenCheckout = () => {
-    // NUEVA LÓGICA DE SEGURIDAD:
+  // Intentar abrir checkout: requiere usuario logueado.
+  // Si no hay sesión, abre el modal de autenticación y muestra mensaje.
+  const handleOpenCheckout = () => {
     if (!user) {
-      // 1. Cerramos el carrito para que no estorbe
       setIsCartOpen(false);
-      
-      // 2. Avisamos al usuario por qué no puede seguir
       setToastMessage("🔒 Inicia sesión o regístrate para finalizar tu compra.");
-      
-      // 3. Abrimos el modal de Login automáticamente
       setIsAuthOpen(true);
-      return; // Detenemos la función aquí
+      return;
     }
 
-    // Si hay usuario, procedemos normal
+    // Usuario autenticado: abrir el flujo de checkout
     setIsCartOpen(false);
     setIsCheckoutOpen(true);
   };
@@ -265,6 +272,7 @@ setProducts(formattedData);
 
   // ----------------------------------------------------------------------
   // LOADING SCREEN (Cyberpunk Style)
+  // Muestra una pantalla de carga mientras `isLoading` es true.
   // ----------------------------------------------------------------------
   if (isLoading) {
     return (
@@ -298,6 +306,8 @@ setProducts(formattedData);
 
   // ----------------------------------------------------------------------
   // MAIN APP
+  // - Si el `user` tiene rol `cajero` o `admin` devolvemos el panel correspondiente
+  // - En caso contrario, renderizamos la tienda pública con Navbar, catálogos, etc.
   // ----------------------------------------------------------------------
 
 
